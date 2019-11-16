@@ -1,0 +1,24 @@
+---
+ - hosts: localhost
+   connection: local
+   tasks:
+
+   - set_fact:
+       tmpdata: "{{ lookup('file','var.json') | from_json }}"
+
+   - set_fact:
+       amiid: " {{ tmpdata.rhel7[0].current['us-west-2'] }} "
+
+   - name: Print amiID
+     debug:
+       msg: " {{ amiid }} "
+
+   - name: Creating EC2 Instance
+     ec2:
+       image: " {{ amiid }} "
+       group: default
+       instance_type: t2.micro
+       region: us-east-1
+       key_name: id_rsa
+       wait: true
+     register: ec2

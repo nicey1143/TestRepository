@@ -1,0 +1,28 @@
+---
+# tasks file for roles/pkumar
+
+    - name: Get Latest Amazon Base AMI
+      ec2_ami_find:
+        owner: amazon
+        region: "{{ region }}"
+        name: "amzn-ami-hvm-*"
+        is_public: no
+        sort: name
+        sort_order: descending
+        state: available
+      register: amis
+
+    - name: Creating EC2 Instance
+      ec2:
+        image: "{{ amis.results[0].ami_id }}"
+        group: default
+        instance_type: m3.medium
+        region: "{{ region }}"
+        key_name: id_rsa
+        aws_access_key: "{{ access_key }}"
+        aws_secret_key: "{{ secret_key }}"
+        wait: true
+        count: 1
+        vpc_subnet_id: subnet-95250bc8
+        assign_public_ip: yes
+      register: ec2
